@@ -6,3 +6,8 @@ edition = "2021"
 [dependencies]
 
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+
+warp = "0.3"
+async-graphql = { version = "5", features = ["chrono"] }
+async-graphql-warp = "5"
+futures-util = { version = "0.3.27", features = ["tokio-io"] }
