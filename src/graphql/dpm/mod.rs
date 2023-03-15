@@ -138,7 +138,8 @@ impl SubscriptionRoot {
 type MySchema = Schema<QueryRoot, EmptyMutation, SubscriptionRoot>;
 
 pub fn filter(
-) -> impl Filter<Extract = (impl warp::Reply,), Error = Rejection> + Clone {
+    path: &str,
+) -> impl Filter<Extract = (impl warp::Reply,), Error = Rejection> + Clone + '_ {
     let schema =
         Schema::build(QueryRoot, EmptyMutation, SubscriptionRoot).finish();
 
@@ -159,24 +160,16 @@ pub fn filter(
         .and(warp::path::end())
         .and(graphql_subscription(schema));
 
-    let graphiql = warp::path::end().and(warp::get()).map(|| {
+    let graphiql = warp::path::end().and(warp::get()).map(move || {
         HttpResponse::builder()
             .header("content-type", "text/html")
             .body(
                 GraphiQLSource::build()
-                    .endpoint("/dpm/q")
-                    .subscription_endpoint("/dpm/s")
+                    .endpoint(format!("/{}/q", path).as_str())
+                    .subscription_endpoint(format!("/{}/s", path).as_str())
                     .finish(),
             )
     });
 
-    warp::path("dpm")
-        .and(graphiql.or(graphql_query).or(graphql_sub))
-        .with(
-            warp::cors()
-                .allow_any_origin()
-                .allow_headers(vec!["content-type"])
-                .allow_methods(vec!["OPTIONS", "GET", "POST"])
-                .max_age(tokio::time::Duration::from_secs(3_600)),
-        )
+    warp::path(path).and(graphiql.or(graphql_query).or(graphql_sub))
 }
