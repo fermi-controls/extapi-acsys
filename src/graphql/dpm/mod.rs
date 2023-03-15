@@ -170,5 +170,13 @@ pub fn filter(
             )
     });
 
-    warp::path("dpm").and(graphiql.or(graphql_query).or(graphql_sub))
+    warp::path("dpm")
+        .and(graphiql.or(graphql_query).or(graphql_sub))
+        .with(
+            warp::cors()
+                .allow_any_origin()
+                .allow_headers(vec!["content-type"])
+                .allow_methods(vec!["OPTIONS", "GET", "POST"])
+                .max_age(tokio::time::Duration::from_secs(3_600)),
+        )
 }
