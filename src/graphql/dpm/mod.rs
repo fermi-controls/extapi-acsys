@@ -11,10 +11,12 @@ struct DataType {
     value: f64,
 }
 
-/// Holds information for a data return.
+/// This structure holds information associated with a device's reading, A "reading" is the
+/// latest value of any of a device's properties.
 #[derive(SimpleObject)]
 struct DataInfo {
-    /// Timestamp representing when the data was sampled.
+    /// Timestamp representing when the data was sampled. This value is provided as milliseconds
+    /// since 1970, UTC.
     timestamp: u64,
 
     /// The value of the device when sampled.
@@ -26,17 +28,28 @@ struct DataInfo {
     /// The name of the device.
     name: String,
 
-    /// A description of the device.
+    /// A short description of the device.
     description: String,
 
-    /// The engineering units of the device's scaled value.
+    /// The engineering units of the device's scaled value. Some data types won't have units
+    /// (asking for raw data, for instance.)
     units: Option<String>,
 }
 
+/// This structure wraps a device reading with some routing information: a `refId` to correlate
+/// which device, in the array of devices passed, this reply is for. It also has a `cycle`
+/// field so that reading from different devices can correlate which cycle they correspond.
 #[derive(SimpleObject)]
 struct DataReply {
+    /// This is an index to indicate which entry, in the passed array of DRF strings, this
+    /// reply corresponds.
     ref_id: i32,
+
+    /// The cycle number in which the device was sampled. This can be used to correlate
+    /// readings from several devices.
     cycle: u64,
+
+    /// The returned data.
     data: DataInfo,
 }
 
@@ -44,6 +57,8 @@ struct QueryRoot;
 
 #[Object]
 impl QueryRoot {
+    /// Retrieve the latest data from a set of devices. The returned vector will contain the
+    /// readings of the devices in the same order as they were specified in the argument list.
     async fn accelerator_data(&self, drfs: Vec<String>) -> Vec<DataReply> {
         vec![]
     }
