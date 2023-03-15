@@ -2,6 +2,9 @@ use warp::Filter;
 
 pub mod dpm;
 
+// Starts the web server that receives GraphQL queries. The configuration of the server is
+// pulled together by obtaining configuration information from the submodules.
+
 pub async fn start_service() {
     let filter = dpm::filter("dpm").with(
         warp::cors()
