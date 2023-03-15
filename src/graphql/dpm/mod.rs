@@ -5,10 +5,52 @@ use futures_util::{stream, Stream};
 use std::convert::Infallible;
 use warp::{http::Response as HttpResponse, Filter, Rejection};
 
-/// The control system supports several types and this entity can repesent any of them.
 #[derive(SimpleObject)]
-struct DataType {
-    value: f64,
+struct StatusReply {
+    status: i16
+}
+
+#[derive(SimpleObject)]
+struct Scalar {
+    value: f64
+}
+
+#[derive(SimpleObject)]
+struct ScalarArray {
+    value: Vec<f64>
+}
+
+#[derive(SimpleObject)]
+struct Raw {
+    value: Vec<u8>
+}
+
+#[derive(SimpleObject)]
+struct Text {
+    value: String
+}
+
+#[derive(SimpleObject)]
+struct TextArray {
+    value: Vec<String>
+}
+
+#[derive(SimpleObject)]
+struct StructData {
+    key: String,
+    value: Box<DataType>
+}
+
+/// The control system supports several types and this entity can repesent any of them.
+#[derive(Union)]
+enum DataType {
+    StatusReply(StatusReply),
+    Scalar(Scalar),
+    ScalarArray(ScalarArray),
+    Raw(Raw),
+    Text(Text),
+    TextArray(TextArray),
+    StructData(StructData),
 }
 
 /// This structure holds information associated with a device's reading, A "reading" is the
@@ -86,7 +128,7 @@ impl SubscriptionRoot {
                         cycle: 1,
                         data: DataInfo {
                             timestamp: 100,
-                            result: DataType { value },
+                            result: DataType::Scalar(Scalar { value }),
                             di: 1000,
                             name: "M:OUTTMP".to_string(),
                             description: "Outdoor temperature".to_string(),
