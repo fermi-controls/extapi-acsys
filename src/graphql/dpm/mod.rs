@@ -1,44 +1,45 @@
 use async_graphql::http::GraphiQLSource;
 use async_graphql::*;
 use async_graphql_warp::graphql_subscription;
+use chrono::*;
 use futures_util::{stream, Stream};
 use std::convert::Infallible;
 use warp::{http::Response as HttpResponse, Filter, Rejection};
 
 #[derive(SimpleObject)]
 struct StatusReply {
-    status: i16
+    status: i16,
 }
 
 #[derive(SimpleObject)]
 struct Scalar {
-    value: f64
+    value: f64,
 }
 
 #[derive(SimpleObject)]
 struct ScalarArray {
-    value: Vec<f64>
+    values: Vec<f64>,
 }
 
 #[derive(SimpleObject)]
 struct Raw {
-    value: Vec<u8>
+    value: Vec<u8>,
 }
 
 #[derive(SimpleObject)]
 struct Text {
-    value: String
+    value: String,
 }
 
 #[derive(SimpleObject)]
 struct TextArray {
-    value: Vec<String>
+    values: Vec<String>,
 }
 
 #[derive(SimpleObject)]
 struct StructData {
     key: String,
-    value: Box<DataType>
+    value: Box<DataType>,
 }
 
 /// The control system supports several types and this entity can repesent any of them.
@@ -57,7 +58,7 @@ enum DataType {
 #[derive(SimpleObject)]
 struct DataInfo {
     /// Timestamp representing when the data was sampled. This value is provided as milliseconds since 1970, UTC.
-    timestamp: u64,
+    timestamp: DateTime<Utc>,
 
     /// The value of the device when sampled.
     result: DataType,
@@ -119,7 +120,7 @@ impl SubscriptionRoot {
                         ref_id: 0,
                         cycle: 1,
                         data: DataInfo {
-                            timestamp: 100,
+                            timestamp: std::time::SystemTime::now().into(),
                             result: DataType::Scalar(Scalar { value }),
                             di: 1000,
                             name: "M:OUTTMP".to_string(),

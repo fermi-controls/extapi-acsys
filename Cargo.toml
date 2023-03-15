@@ -12,3 +12,4 @@ async-graphql = { version = "5", features = ["chrono"] }
 async-graphql-warp = "5"
 futures-util = { version = "0.3.27", features = ["tokio-io"] }
 rand = { version = "0.8.5", features = ["small_rng"] }
+chrono = "0.4.24"
