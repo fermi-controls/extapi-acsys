@@ -16,16 +16,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Cache cargo artifacts
-      id: cache-cargo
-      uses: actions/cache@v3
-      env:
-        cache-name: cache-node-modules
+    - name: Get Rust toolkit
+      run: rustup toolchain install stable --profile minimal
+
+    - uses: Swatinem/rust-cache@v2
       with:
-        path: |
-          ~/.cargo
-          target/debug/deps
-        key: ${{ runner.os }}-test
+        prefix-key: "rust"
 
     - name: Check formatting
       run: cargo fmt --all -- --check
