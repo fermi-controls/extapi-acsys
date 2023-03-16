@@ -8,33 +8,33 @@ pub struct StatusReply {
 
 #[derive(SimpleObject)]
 pub struct Scalar {
-    pub value: f64,
+    pub scalar_value: f64,
 }
 
 #[derive(SimpleObject)]
 pub struct ScalarArray {
-    pub values: Vec<f64>,
+    pub scalar_array_value: Vec<f64>,
 }
 
 #[derive(SimpleObject)]
 pub struct Raw {
-    pub value: Vec<u8>,
+    pub raw_value: Vec<u8>,
 }
 
 #[derive(SimpleObject)]
 pub struct Text {
-    pub value: String,
+    pub string_value: String,
 }
 
 #[derive(SimpleObject)]
 pub struct TextArray {
-    pub values: Vec<String>,
+    pub string_array_value: Vec<String>,
 }
 
 #[derive(SimpleObject)]
 pub struct StructData {
     pub key: String,
-    pub value: Box<DataType>,
+    pub struct_value: Box<DataType>,
 }
 
 /// The control system supports several types and this entity can repesent any of them.

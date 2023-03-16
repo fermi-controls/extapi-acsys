@@ -6,17 +6,23 @@ use warp::{http::Response as HttpResponse, Filter, Rejection};
 
 mod handlers;
 
-type MySchema = Schema<handlers::QueryRoot, EmptyMutation, handlers::SubscriptionRoot>;
+type MySchema =
+    Schema<handlers::QueryRoot, EmptyMutation, handlers::SubscriptionRoot>;
 
 // Returns a Warp Filter that organizes the DPM protion of the web site.
 
 pub fn filter(
     path: &str,
-) -> impl Filter<Extract = (impl warp::Reply,), Error = Rejection> + Clone + '_ {
+) -> impl Filter<Extract = (impl warp::Reply,), Error = Rejection> + Clone + '_
+{
     // Create the schema object which is used to reply to GraphQL queries and subscriptions.
 
-    let schema =
-        Schema::build(handlers::QueryRoot, EmptyMutation, handlers::SubscriptionRoot).finish();
+    let schema = Schema::build(
+        handlers::QueryRoot,
+        EmptyMutation,
+        handlers::SubscriptionRoot,
+    )
+    .finish();
 
     // Build the query portion. The last path segment must be "q" and only POST methods
     // before handing the request to the schema.

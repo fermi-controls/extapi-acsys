@@ -9,7 +9,9 @@ pub struct QueryRoot;
 #[Object]
 impl QueryRoot {
     /// Retrieve the latest data from a set of devices. The returned vector will contain the readings of the devices in the same order as they were specified in the argument list.
-    async fn accelerator_data(&self, drfs: Vec<String>) -> Vec<types::DataReply> {
+    async fn accelerator_data(
+        &self, drfs: Vec<String>,
+    ) -> Vec<types::DataReply> {
         vec![]
     }
 }
@@ -36,7 +38,9 @@ impl SubscriptionRoot {
                         cycle: 1,
                         data: types::DataInfo {
                             timestamp: std::time::SystemTime::now().into(),
-                            result: types::DataType::Scalar(types::Scalar { value }),
+                            result: types::DataType::Scalar(types::Scalar {
+                                scalar_value: value,
+                            }),
                             di: 1000,
                             name: "M:OUTTMP".to_string(),
                             description: "Outdoor temperature".to_string(),
