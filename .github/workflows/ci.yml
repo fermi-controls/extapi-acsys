@@ -22,7 +22,9 @@ jobs:
       env:
         cache-name: cache-node-modules
       with:
-        path: ~/.cargo
+        path: |
+          ~/.cargo
+          ~/extapi-dpm/target/debug/deps
         key: ${{ runner.os }}-test
 
     - name: Check formatting
