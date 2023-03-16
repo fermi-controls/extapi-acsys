@@ -23,12 +23,12 @@ pub struct Raw {
 
 #[derive(SimpleObject)]
 pub struct Text {
-    pub string_value: String,
+    pub text_value: String,
 }
 
 #[derive(SimpleObject)]
 pub struct TextArray {
-    pub string_array_value: Vec<String>,
+    pub text_array_value: Vec<String>,
 }
 
 #[derive(SimpleObject)]
