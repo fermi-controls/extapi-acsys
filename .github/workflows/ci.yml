@@ -3,19 +3,9 @@ name: Rust
 on:
   push:
     branches: [ "main" ]
-    inputs:
-      rust-version:
-        type: string
-        required: false
-        default: stable
 
   pull_request:
     branches: [ "main" ]
-    inputs:
-      rust-version:
-        type: string
-        required: false
-        default: stable
 
 env:
   CARGO_TERM_COLOR: always
@@ -31,9 +21,9 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: ${{ inputs.rust-version }}
+          toolchain: stable
           override: true
-          components: rustfmt, clippy
+          components: rustfmt
 
       - name: Set up cargo cache
         uses: actions/cache@v3
