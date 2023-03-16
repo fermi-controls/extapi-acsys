@@ -25,7 +25,7 @@ jobs:
       with:
         path: |
           ~/.cargo
-          ~/extapi-dpm/target/debug/deps
+          ~/target/debug/deps
         key: ${{ runner.os }}-test
 
     - name: Check formatting
