@@ -19,6 +19,7 @@ jobs:
     - name: Get Rust toolkit
       run: rustup toolchain install stable --profile minimal
 
+
     - uses: Swatinem/rust-cache@v2
       with:
         prefix-key: "rust"
