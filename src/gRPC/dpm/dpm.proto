@@ -22,7 +22,7 @@ service DPM {
 message Result {
     oneof value {
         google.protobuf.Empty none = 1;
-	string error = 2;
+        string error = 2;
     }
 }
 
@@ -38,8 +38,8 @@ message AuthRequest {
 
 message AuthReply {
     oneof step {
-	bytes token = 1;
-	Result result = 2;
+        bytes token = 1;
+        Result result = 2;
     }
 }
 
@@ -66,17 +66,17 @@ message Data {
     }
 
     message StructData {
-	map<string, Data> values = 1;
+        map<string, Data> values = 1;
     }
 
     oneof value {
-	bool flag = 16;
+        bool flag = 16;
         double scalar = 17;
         ScalarArray scalarArr = 18;
         bytes raw = 19;
         string text = 20;
         TextArray textArr = 21;
-	StructData structData = 22;
+        StructData structData = 22;
     }
 }
 
