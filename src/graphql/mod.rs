@@ -14,5 +14,5 @@ pub async fn start_service() {
             .max_age(tokio::time::Duration::from_secs(3_600)),
     );
 
-    warp::serve(filter).run(([127, 0, 0, 1], 8000)).await;
+    warp::serve(filter).run(([0, 0, 0, 0], 8000)).await;
 }
