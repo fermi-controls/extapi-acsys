@@ -5,7 +5,7 @@ option java_multiple_files = false;
 option java_package = "gov.fnal.controls.service.proto.grpc";
 option java_outer_classname = "DeviceInfoProto";
 
-package gov.fnal.controls;
+package dpm;
 
 message DeviceInfo {
     message PropertyInfo {

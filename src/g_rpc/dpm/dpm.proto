@@ -53,7 +53,7 @@ message RequestList {
 }
 
 message DeviceInfoList {
-    repeated gov.fnal.controls.DeviceInfo entry = 1;
+    repeated DeviceInfo entry = 1;
 }
 
 message Data {
