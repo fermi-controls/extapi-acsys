@@ -9,13 +9,15 @@ mod handlers;
 type MySchema =
     Schema<handlers::QueryRoot, EmptyMutation, handlers::SubscriptionRoot>;
 
-// Returns a Warp Filter that organizes the DPM protion of the web site.
+// Returns a Warp Filter that organizes the DPM protion of the web
+// site.
 
 pub fn filter(
     path: &str,
 ) -> impl Filter<Extract = (impl warp::Reply,), Error = Rejection> + Clone + '_
 {
-    // Create the schema object which is used to reply to GraphQL queries and subscriptions.
+    // Create the schema object which is used to reply to GraphQL
+    // queries and subscriptions.
 
     let schema = Schema::build(
         handlers::QueryRoot,
@@ -24,8 +26,8 @@ pub fn filter(
     )
     .finish();
 
-    // Build the query portion. The last path segment must be "q" and only POST methods
-    // before handing the request to the schema.
+    // Build the query portion. The last path segment must be "q" and
+    // only POST methods before handing the request to the schema.
 
     let graphql_query = warp::path("q")
         .and(warp::path::end())
@@ -40,14 +42,15 @@ pub fn filter(
             },
         ));
 
-    // Build the subscription portion. The last path segment must be "s".
+    // Build the subscription portion. The last path segment must be
+    // "s".
 
     let graphql_sub = warp::path("s")
         .and(warp::path::end())
         .and(graphql_subscription(schema));
 
-    // Add diagnostic editor portion. No further path should be found and only GET
-    // methods are allowed.
+    // Add diagnostic editor portion. No further path should be found
+    // and only GET methods are allowed.
 
     let graphiql = warp::path::end().and(warp::get()).map(move || {
         HttpResponse::builder()
@@ -60,8 +63,8 @@ pub fn filter(
             )
     });
 
-    // Build the sub-site. Look, first, for the leading path and then look for any of the
-    // above services.
+    // Build the sub-site. Look, first, for the leading path and then
+    // look for any of the above services.
 
     warp::path(path).and(graphiql.or(graphql_query).or(graphql_sub))
 }

@@ -1,3 +1,4 @@
+mod g_rpc;
 mod graphql;
 
 #[tokio::main]

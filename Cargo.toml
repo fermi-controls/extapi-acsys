@@ -9,14 +9,16 @@ tonic-build = "0.8"
 [dependencies]
 tonic = "0.8"
 
-tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "rt"] }
 
 warp = "0.3"
 async-graphql = { version = "5", features = ["chrono"] }
 async-graphql-warp = "5"
-futures-util = { version = "0.3.27", features = ["tokio-io"] }
-rand = { version = "0.8.5", features = ["small_rng"] }
-chrono = "0.4.24"
+futures-util = { version = "0.3", features = ["tokio-io"] }
+chrono = "0.4"
+prost = "0.11"
+prost-types = "0.11"
+futures = "0.3.27"
 
 [profile.dev]
 incremental = false
