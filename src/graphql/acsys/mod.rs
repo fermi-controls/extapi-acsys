@@ -1,8 +1,7 @@
-use async_graphql::http::GraphiQLSource;
 use async_graphql::*;
 use async_graphql_warp::graphql_subscription;
 use std::convert::Infallible;
-use warp::{http::Response as HttpResponse, Filter, Rejection};
+use warp::{Filter, Rejection};
 
 mod handlers;
 
