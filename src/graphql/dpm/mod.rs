@@ -29,10 +29,8 @@ pub fn filter(
     // Build the query portion. The last path segment must be "q" and
     // only POST methods before handing the request to the schema.
 
-    let graphql_query = warp::path("q")
-        .and(warp::path::end())
-        .and(warp::post())
-        .and(async_graphql_warp::graphql(schema.clone()).and_then(
+    let graphql_query = async_graphql_warp::graphql(schema.clone())
+        .and_then(
             |(schema, request): (MySchema, async_graphql::Request)| async move {
                 let resp = schema.execute(request).await;
 
@@ -40,31 +38,16 @@ pub fn filter(
                     resp,
                 ))
             },
-        ));
+        )
+        .with(warp::log("query"));
 
     // Build the subscription portion. The last path segment must be
     // "s".
 
-    let graphql_sub = warp::path("s")
-        .and(warp::path::end())
-        .and(graphql_subscription(schema));
-
-    // Add diagnostic editor portion. No further path should be found
-    // and only GET methods are allowed.
-
-    let graphiql = warp::path::end().and(warp::get()).map(move || {
-        HttpResponse::builder()
-            .header("content-type", "text/html")
-            .body(
-                GraphiQLSource::build()
-                    .endpoint(format!("/{}/q", path).as_str())
-                    .subscription_endpoint(format!("/{}/s", path).as_str())
-                    .finish(),
-            )
-    });
+    let graphql_sub = graphql_subscription(schema).with(warp::log("subs"));
 
     // Build the sub-site. Look, first, for the leading path and then
     // look for any of the above services.
 
-    warp::path(path).and(graphiql.or(graphql_query).or(graphql_sub))
+    warp::path(path).and(graphql_query.or(graphql_sub))
 }
