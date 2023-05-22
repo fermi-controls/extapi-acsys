@@ -25,8 +25,7 @@ pub fn filter(
     )
     .finish();
 
-    // Build the query portion. The last path segment must be "q" and
-    // only POST methods before handing the request to the schema.
+    // Build the query portion.
 
     let graphql_query = async_graphql_warp::graphql(schema.clone())
         .and_then(
@@ -40,8 +39,7 @@ pub fn filter(
         )
         .with(warp::log("query"));
 
-    // Build the subscription portion. The last path segment must be
-    // "s".
+    // Build the subscription portion.
 
     let graphql_sub = graphql_subscription(schema).with(warp::log("subs"));
 
