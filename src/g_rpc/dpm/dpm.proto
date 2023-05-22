@@ -10,45 +10,45 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 service DPM {
-	rpc OpenSession(google.protobuf.Empty) returns (stream SessionReply) {}
-	rpc Authenticate(AuthRequest) returns (AuthReply) {}
+    rpc OpenSession(google.protobuf.Empty) returns (stream SessionReply) {}
+    rpc Authenticate(AuthRequest) returns (AuthReply) {}
     rpc ReadDevice(Device) returns (Reading) {}
     rpc StartAcquisition(AcquisitionList) returns (stream Reading) {}
-	rpc ApplySettings(SettingList) returns (StatusList) {}
-	rpc GetData(google.protobuf.Timestamp) returns (stream Reading) {}
+    rpc ApplySettings(SettingList) returns (StatusList) {}
+    rpc GetData(google.protobuf.Timestamp) returns (stream Reading) {}
 }
 
 message Result {
-	oneof value {
-		google.protobuf.Empty none = 1;
-		string error = 2;
-	}
+    oneof value {
+	google.protobuf.Empty none = 1;
+	string error = 2;
+    }
 }
 
 message SessionReply {
-	string sessionId = 1;
-	string serviceName = 2;
+    string sessionId = 1;
+    string serviceName = 2;
 }
 
 message AuthRequest {
-	string sessionId = 1;
-	bytes token = 2;
+    string sessionId = 1;
+    bytes token = 2;
 }
 
 message AuthReply {
-	oneof step {
-		bytes token = 1;
-		Result result = 2;
-	}
+    oneof step {
+	bytes token = 1;
+	Result result = 2;
+    }
 }
 
 message Device {
-	string sessionId = 1;
+    string sessionId = 1;
     string name = 2;
 }
 
 message AcquisitionList {
-	string sessionId = 1;
+    string sessionId = 1;
     repeated string req = 2;
 }
 
@@ -107,17 +107,16 @@ message Reading {
 }
 
 message Setting {
-	string name = 1;
-	Data data = 2;
+    string name = 1;
+    Data data = 2;
 }
 
 message SettingList {
-	string sessionId = 1;
-	repeated Setting setting = 2;
-	string event = 3;
+    string sessionId = 1;
+    repeated Setting setting = 2;
+    string event = 3;
 }
 
 message StatusList {
-	repeated sint32 status = 1;
+    repeated sint32 status = 1;
 }
-

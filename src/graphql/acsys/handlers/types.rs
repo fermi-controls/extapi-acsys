@@ -83,3 +83,16 @@ pub struct DataReply {
     /// The returned data.
     pub data: DataInfo,
 }
+
+#[derive(SimpleObject)]
+pub struct DeviceProperty {
+    pub primary_units: Option<String>,
+    pub common_units: Option<String>,
+}
+
+#[derive(SimpleObject)]
+pub struct DeviceInfo {
+    pub description: String,
+    pub reading: Option<DeviceProperty>,
+    pub setting: Option<DeviceProperty>,
+}

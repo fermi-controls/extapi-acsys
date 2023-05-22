@@ -2,6 +2,7 @@ use crate::g_rpc::dpm::proto;
 use async_graphql::*;
 use futures_util::{Stream, StreamExt};
 use tonic::Status;
+use tracing::{error, info, warn};
 
 mod types;
 
@@ -13,6 +14,43 @@ impl QueryRoot {
         &self, _drfs: Vec<String>,
     ) -> Vec<types::DataReply> {
         vec![]
+    }
+
+    async fn device_info(&self, device: String) -> types::DeviceInfo {
+        use crate::g_rpc::devdb::{self, proto};
+
+        info!("looking up {}", &device);
+
+        match devdb::get_device_info(device).await {
+            Ok(s) => {
+                if let Some(proto::info_entry::Result::Device(di)) =
+                    &s.into_inner().set[0].result
+                {
+                    types::DeviceInfo {
+                        description: di.description.clone(),
+                        reading: di.reading.as_ref().map(|p| {
+                            types::DeviceProperty {
+                                primary_units: p.primary_units.clone(),
+                                common_units: p.common_units.clone(),
+                            }
+                        }),
+                        setting: di.setting.as_ref().map(|p| {
+                            types::DeviceProperty {
+                                primary_units: p.primary_units.clone(),
+                                common_units: p.common_units.clone(),
+                            }
+                        }),
+                    }
+                } else {
+                    error!("postgres error");
+                    todo!()
+                }
+            }
+            Err(e) => {
+                error!("gRPC error: {:?}", &e);
+                todo!()
+            }
+        }
     }
 }
 
@@ -55,11 +93,11 @@ fn mk_xlater(
                     di: 0,
                     name: names[e.index as usize].clone(),
                     description: String::from("n/a"),
-                    units: Some(String::from("n/a")),
+                    units: None,
                 },
             }
         } else {
-            println!("returned data: {:?}", &e.data);
+            warn!("returned data: {:?}", &e.data);
             unreachable!()
         }
     })
@@ -77,7 +115,7 @@ impl SubscriptionRoot {
         match dpm::acquire_devices(drfs.clone()).await {
             Ok(s) => s.into_inner().map(mk_xlater(drfs)),
             Err(e) => {
-                println!("gRPC error: {:?}", &e);
+                error!("gRPC error: {:?}", &e);
                 todo!()
             }
         }
