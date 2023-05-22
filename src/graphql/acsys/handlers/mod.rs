@@ -97,7 +97,7 @@ fn mk_xlater(
                 },
             }
         } else {
-            println!("returned data: {:?}", &e.data);
+            warn!("returned data: {:?}", &e.data);
             unreachable!()
         }
     })
@@ -115,7 +115,7 @@ impl SubscriptionRoot {
         match dpm::acquire_devices(drfs.clone()).await {
             Ok(s) => s.into_inner().map(mk_xlater(drfs)),
             Err(e) => {
-                println!("gRPC error: {:?}", &e);
+                error!("gRPC error: {:?}", &e);
                 todo!()
             }
         }
