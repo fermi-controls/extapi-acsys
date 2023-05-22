@@ -93,7 +93,7 @@ fn mk_xlater(
                     di: 0,
                     name: names[e.index as usize].clone(),
                     description: String::from("n/a"),
-                    units: Some(String::from("n/a")),
+                    units: None,
                 },
             }
         } else {
