@@ -2,6 +2,11 @@ use async_graphql::*;
 use chrono::*;
 
 #[derive(SimpleObject)]
+pub struct ErrorReply {
+    pub message: String,
+}
+
+#[derive(SimpleObject)]
 pub struct StatusReply {
     pub status: i16,
 }
@@ -95,4 +100,15 @@ pub struct DeviceInfo {
     pub description: String,
     pub reading: Option<DeviceProperty>,
     pub setting: Option<DeviceProperty>,
+}
+
+#[derive(Union)]
+pub enum DeviceInfoResult {
+    Data(DeviceInfo),
+    Error(ErrorReply),
+}
+
+#[derive(SimpleObject)]
+pub struct DeviceInfoReply {
+    pub result: DeviceInfoResult
 }
