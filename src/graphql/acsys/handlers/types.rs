@@ -45,12 +45,25 @@ pub struct StructData {
 /// The control system supports several types and this entity can repesent any of them.
 #[derive(Union)]
 pub enum DataType {
+    /// This represents an ACNET status reply. If a device request results in an error from the front-end, the data pool mananger will forward the status.
     StatusReply(StatusReply),
+
+    /// Represents a simple, scalar value. This is a scaled, floating point value.
     Scalar(Scalar),
+
+    /// Represents an array of scalar values. In EPICS, this would correspond to a "waveform" device.
     ScalarArray(ScalarArray),
+
+    /// This value is used to return the raw, binary data from the device reading.
     Raw(Raw),
+
+    /// Used for devices that return strings.
     Text(Text),
+
+    /// Used for devices that return arrays of strings.
     TextArray(TextArray),
+
+    /// Represents structured data. The value is a map type where the key is a string that represents a field name and the value is one of the values of this enumeration. This means you can nest `StructData` types to make arbitrarily complex types.
     StructData(StructData),
 }
 
@@ -89,26 +102,38 @@ pub struct DataReply {
     pub data: DataInfo,
 }
 
+/// Holds data associated with a property of a device.
 #[derive(SimpleObject)]
 pub struct DeviceProperty {
+    /// Specifies the engineering units for the primary transform of the device. This field might be `null`, if there aren't units for this transform.
     pub primary_units: Option<String>,
+
+    /// Specifies the engineering units for the common transform of the device. This field might be `null`, if there aren't units for this transform.
     pub common_units: Option<String>,
 }
 
+/// A structure containing device information.
 #[derive(SimpleObject)]
 pub struct DeviceInfo {
+    /// A text field that summarizes the device's purpose.
     pub description: String,
+
+    /// Holds informations related to the reading property. If the device doesn't have a reading property, this field will be `null`.
     pub reading: Option<DeviceProperty>,
+
+    /// Holds informations related to the setting property. If the device doesn't have a setting property, this field will be `null`.
     pub setting: Option<DeviceProperty>,
 }
 
+/// The result of the device info query. It can return device information or an error message describing why information wasn't returned.
 #[derive(Union)]
 pub enum DeviceInfoResult {
     Data(DeviceInfo),
     Error(ErrorReply),
 }
 
+/// The reply to the deviceInfo query.
 #[derive(SimpleObject)]
 pub struct DeviceInfoReply {
-    pub result: DeviceInfoResult
+    pub result: DeviceInfoResult,
 }
