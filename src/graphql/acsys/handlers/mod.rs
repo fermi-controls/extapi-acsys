@@ -2,7 +2,7 @@ use crate::g_rpc::dpm::proto;
 use async_graphql::*;
 use futures_util::{Stream, StreamExt};
 use tonic::Status;
-use tracing::{error, info, warn};
+use tracing::{error, warn};
 
 mod types;
 
@@ -19,54 +19,41 @@ impl QueryRoot {
     async fn device_info(&self, device: String) -> types::DeviceInfoReply {
         use crate::g_rpc::devdb::{self, proto};
 
-        match devdb::get_device_info(device).await {
-            Ok(s) => {
-		match &s.into_inner().set[0].result {
-                    Some(proto::info_entry::Result::Device(di)) => {
-			types::DeviceInfoReply {
-			    result: types::DeviceInfoResult::Data(
-				types::DeviceInfo {
-				    description: di.description.clone(),
-				    reading: di.reading.as_ref().map(|p| {
-					types::DeviceProperty {
-					    primary_units: p.primary_units.clone(),
-					    common_units: p.common_units.clone(),
-					}
-				    }),
-				    setting: di.setting.as_ref().map(|p| {
-					types::DeviceProperty {
-					    primary_units: p.primary_units.clone(),
-					    common_units: p.common_units.clone(),
-					}
-				    }),
-				})
-			}
-		    }
-		    Some(proto::info_entry::Result::ErrMsg(msg)) => {
-			types::DeviceInfoReply {
-			    result: types::DeviceInfoResult::Error(
-				types::ErrorReply {
-				    message: format!("{}", &msg)
-				}
-			    )
-			}
-		    }
-		    None => {
-			types::DeviceInfoReply {
-			    result: types::DeviceInfoResult::Error(
-				types::ErrorReply {
-				    message: "empty response".into()
-				}
-			    )
-			}
-		    }
-		}
-            }
+        let result = match devdb::get_device_info(device).await {
+            Ok(s) => match &s.into_inner().set[0].result {
+                Some(proto::info_entry::Result::Device(di)) => {
+                    types::DeviceInfoResult::Data(types::DeviceInfo {
+                        description: di.description.clone(),
+                        reading: di.reading.as_ref().map(|p| {
+                            types::DeviceProperty {
+                                primary_units: p.primary_units.clone(),
+                                common_units: p.common_units.clone(),
+                            }
+                        }),
+                        setting: di.setting.as_ref().map(|p| {
+                            types::DeviceProperty {
+                                primary_units: p.primary_units.clone(),
+                                common_units: p.common_units.clone(),
+                            }
+                        }),
+                    })
+                }
+                Some(proto::info_entry::Result::ErrMsg(msg)) => {
+                    types::DeviceInfoResult::Error(types::ErrorReply {
+                        message: format!("{}", &msg),
+                    })
+                }
+                None => types::DeviceInfoResult::Error(types::ErrorReply {
+                    message: "empty response".into(),
+                }),
+            },
             Err(e) => {
                 error!("gRPC error: {:?}", &e);
                 todo!()
             }
-        }
+        };
+
+        types::DeviceInfoReply { result }
     }
 }
 
