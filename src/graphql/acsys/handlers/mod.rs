@@ -4,18 +4,28 @@ use futures_util::{Stream, StreamExt};
 use tonic::Status;
 use tracing::{error, warn};
 
+// This module contains the GraphQL types that we'll use for the API.
+
 mod types;
+
+// Create a zero-sized struct to attach the GraphQL handlers.
 
 pub struct QueryRoot;
 
+// Define the schema's query entry points. Any methods defined in this
+// section will appear in the schema.
+
 #[Object]
 impl QueryRoot {
+
+    /// Retrieve the next data point for the specified devices. Depending upon the event in the DRF string, the data may come back immediately or after a delay.
     async fn accelerator_data(
         &self, _drfs: Vec<String>,
     ) -> Vec<types::DataReply> {
         vec![]
     }
 
+    /// Retrieves device information. The parameter specifies the device. The reply will contain the device's information or an error status indicating why the query failed.
     async fn device_info(&self, device: String) -> types::DeviceInfoReply {
         use crate::g_rpc::devdb::{self, proto};
 
