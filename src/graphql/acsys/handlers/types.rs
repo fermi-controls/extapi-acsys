@@ -82,10 +82,10 @@ pub struct DataInfo {
     /// The name of the device.
     pub name: String,
 
-    /// A short description of the device.
+    /// A short description of the device. DEPRECATED: this information should be obtained through the `deviceInfo` query.
     pub description: String,
 
-    /// The engineering units of the device's scaled value. Some data types won't have units (asking for raw data, for instance.)
+    /// The engineering units of the device's scaled value. Some data types won't have units (asking for raw data, for instance.) DEPRECATED: this information should be obtained through the `deviceInfo` query.
     pub units: Option<String>,
 }
 
