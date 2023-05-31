@@ -81,12 +81,6 @@ pub struct DataInfo {
 
     /// The name of the device.
     pub name: String,
-
-    /// A short description of the device. DEPRECATED: this information should be obtained through the `deviceInfo` query.
-    pub description: String,
-
-    /// The engineering units of the device's scaled value. Some data types won't have units (asking for raw data, for instance.) DEPRECATED: this information should be obtained through the `deviceInfo` query.
-    pub units: Option<String>,
 }
 
 /// This structure wraps a device reading with some routing information: a `refId` to correlate which device, in the array of devices passed, this reply is for. It also has a `cycle` field so that reading from different devices can correlate which cycle they correspond.

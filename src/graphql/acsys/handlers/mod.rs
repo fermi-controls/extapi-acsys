@@ -112,8 +112,6 @@ fn mk_xlater(
                     result: xlat_type(data),
                     di: 0,
                     name: names[e.index as usize].clone(),
-                    description: String::from("n/a"),
-                    units: None,
                 },
             }
         } else {
