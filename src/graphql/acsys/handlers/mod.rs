@@ -55,11 +55,18 @@ impl QueryRoot {
     async fn device_info(
         &self, devices: Vec<String>,
     ) -> types::DeviceInfoReply {
-        let result = match devdb::get_device_info(devices).await {
+        let result = match devdb::get_device_info(&devices).await {
             Ok(s) => s.into_inner().set.iter().map(to_info_result).collect(),
             Err(e) => {
-                error!("gRPC error: {:?}", &e);
-                todo!()
+                error!("{}", &e);
+                devices
+                    .iter()
+                    .map(|_| {
+                        types::DeviceInfoResult::ErrorReply(types::ErrorReply {
+                            message: format!("{}", &e),
+                        })
+                    })
+                    .collect()
             }
         };
 

@@ -5,13 +5,16 @@ pub mod proto {
 }
 
 pub async fn get_device_info(
-    device: Vec<String>,
+    device: &[String],
 ) -> Result<tonic::Response<proto::DeviceInfoReply>, tonic::Status> {
-    let mut client = DevDbClient::connect("http://clx76.fnal.gov:6802/")
-        .await
-        .unwrap();
+    match DevDbClient::connect("http://clx76.fnal.gov:6802/").await {
+        Ok(mut client) => {
+            let req = proto::DeviceList {
+                device: device.to_vec(),
+            };
 
-    let req = proto::DeviceList { device };
-
-    client.get_device_info(req).await
+            client.get_device_info(req).await
+        }
+        Err(_) => Err(tonic::Status::unavailable("DevDB service unavailable")),
+    }
 }

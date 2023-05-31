@@ -7,14 +7,15 @@ pub mod proto {
 pub async fn acquire_devices(
     devices: Vec<String>,
 ) -> Result<tonic::Response<tonic::Streaming<proto::Reading>>, tonic::Status> {
-    let mut client = DpmClient::connect("http://dce46.fnal.gov:50051/")
-        .await
-        .unwrap();
+    match DpmClient::connect("http://dce46.fnal.gov:50051/").await {
+        Ok(mut client) => {
+            let req = AcquisitionList {
+                session_id: String::from(""),
+                req: devices,
+            };
 
-    let req = AcquisitionList {
-        session_id: String::from(""),
-        req: devices,
-    };
-
-    client.start_acquisition(req).await
+            client.start_acquisition(req).await
+        }
+        Err(_) => Err(tonic::Status::unavailable("DPM service unavailable")),
+    }
 }
