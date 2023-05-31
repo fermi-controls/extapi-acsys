@@ -11,9 +11,7 @@ pub async fn get_device_info(
         .await
         .unwrap();
 
-    let req = proto::DeviceList {
-        device
-    };
+    let req = proto::DeviceList { device };
 
     client.get_device_info(req).await
 }

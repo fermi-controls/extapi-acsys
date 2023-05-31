@@ -1,5 +1,5 @@
-use crate::g_rpc::dpm;
 use crate::g_rpc::devdb;
+use crate::g_rpc::dpm;
 use async_graphql::*;
 use futures_util::{Stream, StreamExt};
 use tonic::Status;
@@ -14,17 +14,13 @@ fn to_info_result(item: &devdb::proto::InfoEntry) -> types::DeviceInfoResult {
         Some(devdb::proto::info_entry::Result::Device(di)) => {
             types::DeviceInfoResult::DeviceInfo(types::DeviceInfo {
                 description: di.description.clone(),
-                reading: di.reading.as_ref().map(|p| {
-                    types::DeviceProperty {
-                        primary_units: p.primary_units.clone(),
-                        common_units: p.common_units.clone(),
-                    }
+                reading: di.reading.as_ref().map(|p| types::DeviceProperty {
+                    primary_units: p.primary_units.clone(),
+                    common_units: p.common_units.clone(),
                 }),
-                setting: di.setting.as_ref().map(|p| {
-                    types::DeviceProperty {
-                        primary_units: p.primary_units.clone(),
-                        common_units: p.common_units.clone(),
-                    }
+                setting: di.setting.as_ref().map(|p| types::DeviceProperty {
+                    primary_units: p.primary_units.clone(),
+                    common_units: p.common_units.clone(),
                 }),
             })
         }
@@ -35,8 +31,8 @@ fn to_info_result(item: &devdb::proto::InfoEntry) -> types::DeviceInfoResult {
         }
         None => types::DeviceInfoResult::ErrorReply(types::ErrorReply {
             message: "empty response".into(),
-                }),
-            }
+        }),
+    }
 }
 
 // Create a zero-sized struct to attach the GraphQL handlers.
@@ -48,7 +44,6 @@ pub struct QueryRoot;
 
 #[Object]
 impl QueryRoot {
-
     /// Retrieve the next data point for the specified devices. Depending upon the event in the DRF string, the data may come back immediately or after a delay.
     async fn accelerator_data(
         &self, _drfs: Vec<String>,
@@ -57,11 +52,11 @@ impl QueryRoot {
     }
 
     /// Retrieves device information. The parameter specifies the device. The reply will contain the device's information or an error status indicating why the query failed.
-    async fn device_info(&self, devices: Vec<String>) -> types::DeviceInfoReply {
+    async fn device_info(
+        &self, devices: Vec<String>,
+    ) -> types::DeviceInfoReply {
         let result = match devdb::get_device_info(devices).await {
-            Ok(s) => {
-		s.into_inner().set.iter().map(to_info_result).collect()
-},
+            Ok(s) => s.into_inner().set.iter().map(to_info_result).collect(),
             Err(e) => {
                 error!("gRPC error: {:?}", &e);
                 todo!()
