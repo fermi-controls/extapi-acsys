@@ -4,7 +4,8 @@ pub mod acsys;
 
 // Starts the web server that receives GraphQL queries. The
 // configuration of the server is pulled together by obtaining
-// configuration information from the submodules.
+// configuration information from the submodules. All accesses are
+// wrapped with CORS support from the `warp` crate.
 
 pub async fn start_service() {
     let filter = acsys::filter("acsys").with(

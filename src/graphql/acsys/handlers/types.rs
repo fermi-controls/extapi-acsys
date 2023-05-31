@@ -128,12 +128,12 @@ pub struct DeviceInfo {
 /// The result of the device info query. It can return device information or an error message describing why information wasn't returned.
 #[derive(Union)]
 pub enum DeviceInfoResult {
-    Data(DeviceInfo),
-    Error(ErrorReply),
+    DeviceInfo(DeviceInfo),
+    ErrorReply(ErrorReply),
 }
 
 /// The reply to the deviceInfo query.
 #[derive(SimpleObject)]
 pub struct DeviceInfoReply {
-    pub result: DeviceInfoResult,
+    pub result: Vec<DeviceInfoResult>,
 }

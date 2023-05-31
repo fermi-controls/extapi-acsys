@@ -1,4 +1,5 @@
-use crate::g_rpc::dpm::proto;
+use crate::g_rpc::dpm;
+use crate::g_rpc::devdb;
 use async_graphql::*;
 use futures_util::{Stream, StreamExt};
 use tonic::Status;
@@ -7,6 +8,36 @@ use tracing::{error, warn};
 // This module contains the GraphQL types that we'll use for the API.
 
 mod types;
+
+fn to_info_result(item: &devdb::proto::InfoEntry) -> types::DeviceInfoResult {
+    match &item.result {
+        Some(devdb::proto::info_entry::Result::Device(di)) => {
+            types::DeviceInfoResult::DeviceInfo(types::DeviceInfo {
+                description: di.description.clone(),
+                reading: di.reading.as_ref().map(|p| {
+                    types::DeviceProperty {
+                        primary_units: p.primary_units.clone(),
+                        common_units: p.common_units.clone(),
+                    }
+                }),
+                setting: di.setting.as_ref().map(|p| {
+                    types::DeviceProperty {
+                        primary_units: p.primary_units.clone(),
+                        common_units: p.common_units.clone(),
+                    }
+                }),
+            })
+        }
+        Some(devdb::proto::info_entry::Result::ErrMsg(msg)) => {
+            types::DeviceInfoResult::ErrorReply(types::ErrorReply {
+                message: format!("{}", &msg),
+            })
+        }
+        None => types::DeviceInfoResult::ErrorReply(types::ErrorReply {
+            message: "empty response".into(),
+                }),
+            }
+}
 
 // Create a zero-sized struct to attach the GraphQL handlers.
 
@@ -26,37 +57,11 @@ impl QueryRoot {
     }
 
     /// Retrieves device information. The parameter specifies the device. The reply will contain the device's information or an error status indicating why the query failed.
-    async fn device_info(&self, device: String) -> types::DeviceInfoReply {
-        use crate::g_rpc::devdb::{self, proto};
-
-        let result = match devdb::get_device_info(device).await {
-            Ok(s) => match &s.into_inner().set[0].result {
-                Some(proto::info_entry::Result::Device(di)) => {
-                    types::DeviceInfoResult::Data(types::DeviceInfo {
-                        description: di.description.clone(),
-                        reading: di.reading.as_ref().map(|p| {
-                            types::DeviceProperty {
-                                primary_units: p.primary_units.clone(),
-                                common_units: p.common_units.clone(),
-                            }
-                        }),
-                        setting: di.setting.as_ref().map(|p| {
-                            types::DeviceProperty {
-                                primary_units: p.primary_units.clone(),
-                                common_units: p.common_units.clone(),
-                            }
-                        }),
-                    })
-                }
-                Some(proto::info_entry::Result::ErrMsg(msg)) => {
-                    types::DeviceInfoResult::Error(types::ErrorReply {
-                        message: format!("{}", &msg),
-                    })
-                }
-                None => types::DeviceInfoResult::Error(types::ErrorReply {
-                    message: "empty response".into(),
-                }),
-            },
+    async fn device_info(&self, devices: Vec<String>) -> types::DeviceInfoReply {
+        let result = match devdb::get_device_info(devices).await {
+            Ok(s) => {
+		s.into_inner().set.iter().map(to_info_result).collect()
+},
             Err(e) => {
                 error!("gRPC error: {:?}", &e);
                 todo!()
@@ -67,17 +72,17 @@ impl QueryRoot {
     }
 }
 
-fn xlat_type(t: &proto::Data) -> types::DataType {
+fn xlat_type(t: &dpm::proto::Data) -> types::DataType {
     match t.value.as_ref() {
-        Some(proto::data::Value::Scalar(v)) => {
+        Some(dpm::proto::data::Value::Scalar(v)) => {
             types::DataType::Scalar(types::Scalar { scalar_value: *v })
         }
-        Some(proto::data::Value::ScalarArr(v)) => {
+        Some(dpm::proto::data::Value::ScalarArr(v)) => {
             types::DataType::ScalarArray(types::ScalarArray {
                 scalar_array_value: v.value.clone(),
             })
         }
-        Some(proto::data::Value::Status(v)) => {
+        Some(dpm::proto::data::Value::Status(v)) => {
             types::DataType::StatusReply(types::StatusReply {
                 status: *v as i16,
             })
@@ -89,11 +94,11 @@ fn xlat_type(t: &proto::Data) -> types::DataType {
 fn mk_xlater(
     names: Vec<String>,
 ) -> Box<
-    dyn (FnMut(Result<proto::Reading, Status>) -> types::DataReply)
+    dyn (FnMut(Result<dpm::proto::Reading, Status>) -> types::DataReply)
         + Send
         + Sync,
 > {
-    Box::new(move |e: Result<proto::Reading, Status>| {
+    Box::new(move |e: Result<dpm::proto::Reading, Status>| {
         let e = e.unwrap();
 
         if let Some(ref data) = e.data {
