@@ -10,8 +10,14 @@ use tracing::{error, warn};
 
 mod types;
 
+// Converts an `InfoEntry` structure, from the gRPC API, into a
+// `DeviceInfoResult` struct, used in the GraphQL API.
+
 fn to_info_result(item: &devdb::proto::InfoEntry) -> types::DeviceInfoResult {
     match &item.result {
+	// If the `InfoEntry` contains device information, transfer
+	// the information.
+
         Some(devdb::proto::info_entry::Result::Device(di)) => {
             types::DeviceInfoResult::DeviceInfo(types::DeviceInfo {
                 description: di.description.clone(),
@@ -25,11 +31,23 @@ fn to_info_result(item: &devdb::proto::InfoEntry) -> types::DeviceInfoResult {
                 }),
             })
         }
+
+	// If the `InfoEntry` contains an error status, translate it
+	// into the GraphQL error status.
+
         Some(devdb::proto::info_entry::Result::ErrMsg(msg)) => {
             types::DeviceInfoResult::ErrorReply(types::ErrorReply {
                 message: msg.clone(),
             })
         }
+
+	// This response should never happen. For some reason, the
+	// Rust library implements gRPC unions as an enumeration
+	// wrapped in an Option. Maybe `None` represents a default
+	// value? Whatever the reason, the DevDB gRPC service always
+	// returns a value for this field so we should never see it as
+	// `None`.
+
         None => types::DeviceInfoResult::ErrorReply(types::ErrorReply {
             message: "empty response".into(),
         }),
