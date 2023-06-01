@@ -1,7 +1,8 @@
 use crate::g_rpc::devdb;
 use crate::g_rpc::dpm;
 use async_graphql::*;
-use futures_util::{Stream, StreamExt};
+use futures_util::{stream, Stream, StreamExt};
+use std::pin::Pin;
 use tonic::Status;
 use tracing::{error, warn};
 
@@ -121,20 +122,22 @@ fn mk_xlater(
     })
 }
 
+type DataStream = Pin<Box<dyn Stream<Item = types::DataReply> + Send>>;
+
 pub struct SubscriptionRoot;
 
 #[Subscription]
 impl SubscriptionRoot {
-    async fn accelerator_data(
-        &self, drfs: Vec<String>,
-    ) -> impl Stream<Item = types::DataReply> {
+    async fn accelerator_data(&self, drfs: Vec<String>) -> DataStream {
         use crate::g_rpc::dpm;
 
         match dpm::acquire_devices(drfs.clone()).await {
-            Ok(s) => s.into_inner().map(mk_xlater(drfs)),
+            Ok(s) => {
+                Box::pin(s.into_inner().map(mk_xlater(drfs))) as DataStream
+            }
             Err(e) => {
-                error!("gRPC error: {:?}", &e);
-                todo!()
+                error!("{}", &e);
+                Box::pin(stream::empty()) as DataStream
             }
         }
     }
