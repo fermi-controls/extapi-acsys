@@ -59,12 +59,13 @@ impl QueryRoot {
         let result = match devdb::get_device_info(&devices).await {
             Ok(s) => s.into_inner().set.iter().map(to_info_result).collect(),
             Err(e) => {
-                error!("{}", &e);
+		let err_msg = format!("{}", &e);
+
                 devices
                     .iter()
                     .map(|_| {
                         types::DeviceInfoResult::ErrorReply(types::ErrorReply {
-                            message: format!("{}", &e),
+                            message: err_msg.clone(),
                         })
                     })
                     .collect()
