@@ -27,7 +27,7 @@ fn to_info_result(item: &devdb::proto::InfoEntry) -> types::DeviceInfoResult {
         }
         Some(devdb::proto::info_entry::Result::ErrMsg(msg)) => {
             types::DeviceInfoResult::ErrorReply(types::ErrorReply {
-                message: format!("{}", &msg),
+                message: msg.clone(),
             })
         }
         None => types::DeviceInfoResult::ErrorReply(types::ErrorReply {
