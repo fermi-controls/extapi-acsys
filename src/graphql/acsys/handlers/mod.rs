@@ -15,9 +15,8 @@ mod types;
 
 fn to_info_result(item: &devdb::proto::InfoEntry) -> types::DeviceInfoResult {
     match &item.result {
-	// If the `InfoEntry` contains device information, transfer
-	// the information.
-
+        // If the `InfoEntry` contains device information, transfer
+        // the information.
         Some(devdb::proto::info_entry::Result::Device(di)) => {
             types::DeviceInfoResult::DeviceInfo(types::DeviceInfo {
                 description: di.description.clone(),
@@ -29,25 +28,35 @@ fn to_info_result(item: &devdb::proto::InfoEntry) -> types::DeviceInfoResult {
                     primary_units: p.primary_units.clone(),
                     common_units: p.common_units.clone(),
                 }),
+                dig_control: di.dig_control.as_ref().map(|p| {
+                    types::DigControl {
+                        entries: p
+                            .cmds
+                            .iter()
+                            .map(|(k, v)| types::DigControlEntry {
+                                name: k.to_string(),
+                                value: *v,
+                            })
+                            .collect(),
+                    }
+                }),
             })
         }
 
-	// If the `InfoEntry` contains an error status, translate it
-	// into the GraphQL error status.
-
+        // If the `InfoEntry` contains an error status, translate it
+        // into the GraphQL error status.
         Some(devdb::proto::info_entry::Result::ErrMsg(msg)) => {
             types::DeviceInfoResult::ErrorReply(types::ErrorReply {
                 message: msg.clone(),
             })
         }
 
-	// This response should never happen. For some reason, the
-	// Rust library implements gRPC unions as an enumeration
-	// wrapped in an Option. Maybe `None` represents a default
-	// value? Whatever the reason, the DevDB gRPC service always
-	// returns a value for this field so we should never see it as
-	// `None`.
-
+        // This response should never happen. For some reason, the
+        // Rust library implements gRPC unions as an enumeration
+        // wrapped in an Option. Maybe `None` represents a default
+        // value? Whatever the reason, the DevDB gRPC service always
+        // returns a value for this field so we should never see it as
+        // `None`.
         None => types::DeviceInfoResult::ErrorReply(types::ErrorReply {
             message: "empty response".into(),
         }),
@@ -77,7 +86,7 @@ impl QueryRoot {
         let result = match devdb::get_device_info(&devices).await {
             Ok(s) => s.into_inner().set.iter().map(to_info_result).collect(),
             Err(e) => {
-		let err_msg = format!("{}", &e);
+                let err_msg = format!("{}", &e);
 
                 devices
                     .iter()

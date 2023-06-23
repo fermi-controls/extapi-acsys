@@ -106,6 +106,19 @@ pub struct DeviceProperty {
     pub common_units: Option<String>,
 }
 
+/// Describes one digital control command used by a device. `name` is the name of the command and can be used by applications to create a descriptive menu. `value` is the actual integer value to send to the device in order to perform the command.
+#[derive(SimpleObject)]
+pub struct DigControlEntry {
+    pub name: String,
+    pub value: i32,
+}
+
+/// Describes the digital control commands for a device.
+#[derive(SimpleObject)]
+pub struct DigControl {
+    pub entries: Vec<DigControlEntry>,
+}
+
 /// A structure containing device information.
 #[derive(SimpleObject)]
 pub struct DeviceInfo {
@@ -117,6 +130,8 @@ pub struct DeviceInfo {
 
     /// Holds informations related to the setting property. If the device doesn't have a setting property, this field will be `null`.
     pub setting: Option<DeviceProperty>,
+
+    pub dig_control: Option<DigControl>,
 }
 
 /// The result of the device info query. It can return device information or an error message describing why information wasn't returned.
