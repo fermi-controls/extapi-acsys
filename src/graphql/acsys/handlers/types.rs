@@ -109,8 +109,9 @@ pub struct DeviceProperty {
 /// Describes one digital control command used by a device. `name` is the name of the command and can be used by applications to create a descriptive menu. `value` is the actual integer value to send to the device in order to perform the command.
 #[derive(SimpleObject)]
 pub struct DigControlEntry {
-    pub name: String,
     pub value: i32,
+    pub short_name: String,
+    pub long_name: String,
 }
 
 /// Describes the digital control commands for a device.

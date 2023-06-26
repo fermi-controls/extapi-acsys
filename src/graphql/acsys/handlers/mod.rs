@@ -34,10 +34,19 @@ fn to_info_result(item: &devdb::proto::InfoEntry) -> types::DeviceInfoResult {
                         entries: p
                             .cmds
                             .iter()
-                            .map(|(k, v)| types::DigControlEntry {
-                                name: k.to_string(),
-                                value: *v,
-                            })
+                            .map(
+                                |devdb::proto::DigitalControlItem {
+                                     value,
+                                     short_name,
+                                     long_name,
+                                 }| {
+                                    types::DigControlEntry {
+                                        value: *value as i32,
+                                        short_name: short_name.into(),
+                                        long_name: long_name.into(),
+                                    }
+                                },
+                            )
                             .collect(),
                     }
                 }),
